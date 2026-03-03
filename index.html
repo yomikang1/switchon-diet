@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+  <title>🔆 스위치온 다이어트</title>
+  <style>
+    :root {
+      --primary: #4F46E5; --primary-light: #818CF8;
+      --success: #10B981; --warning: #F59E0B;
+      --danger: #EF4444; --bg: #F1F5F9;
+      --card: #FFFFFF; --text: #1E293B;
+      --text-muted: #64748B; --border: #E2E8F0;
+      --s1:#7C3AED; --s1bg:#EDE9FE; --s1t:#5B21B6;
+      --s2:#2563EB; --s2bg:#DBEAFE; --s2t:#1E40AF;
+      --s3:#059669; --s3bg:#D1FAE5; --s3t:#065F46;
+      --s4:#D97706; --s4bg:#FEF3C7; --s4t:#92400E;
+      --s5:#DC2626; --s5bg:#FEE2E2; --s5t:#991B1B;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body {
+      font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR','Segoe UI',sans-serif;
+      background:var(--bg); color:var(--text);
+      max-width:480px; margin:0 auto; min-height:100vh; padding-bottom:calc(110px + env(safe-area-inset-bottom));
+    }
+
+    /* HEADER */
+    .header {
+      background:linear-gradient(135deg,#4F46E5,#7C3AED);
+      color:white; padding:14px 16px 12px;
+      position:sticky; top:0; z-index:100;
+      box-shadow:0 2px 12px rgba(79,70,229,.3);
+    }
+    .header-top { display:flex; justify-content:space-between; align-items:center; }
+    .header h1 { font-size:18px; font-weight:800; letter-spacing:-.5px; }
+    .header-sub { font-size:12px; opacity:.85; margin-top:2px; }
+    .refresh-btn {
+      background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.35);
+      color:white; border-radius:50%; width:32px; height:32px;
+      font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background .15s; flex-shrink:0;
+    }
+    .refresh-btn:active { background:rgba(255,255,255,.4); transform:rotate(180deg); transition:transform .3s,background .15s; }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+      width:100%; max-width:480px; background:white;
+      border-top:1px solid var(--border); display:flex; z-index:200;
+      box-shadow:0 -2px 12px rgba(0,0,0,.08);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .nav-btn {
+      flex:1; padding:14px 4px 12px; border:none; background:none; cursor:pointer;
+      display:flex; flex-direction:column; align-items:center; gap:3px;
+      font-size:10px; color:var(--text-muted); transition:color .15s;
+    }
+    .nav-btn.active { color:var(--primary); }
+    .nav-btn .icon { font-size:22px; line-height:1; }
+
+    /* VIEWS */
+    .view { display:none; padding:14px; }
+    .view.active { display:block; }
+
+    /* CARDS */
+    .card {
+      background:white; border-radius:14px; padding:16px;
+      margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.07);
+    }
+    .card-title {
+      font-size:11px; font-weight:700; color:var(--text-muted);
+      text-transform:uppercase; letter-spacing:.8px; margin-bottom:10px;
+    }
+
+    /* TODAY HERO */
+    .today-hero {
+      background:linear-gradient(135deg,#4F46E5,#7C3AED);
+      color:white; border-radius:18px; padding:18px; margin-bottom:12px;
+      box-shadow:0 4px 20px rgba(79,70,229,.35);
+    }
+    .today-top { display:flex; justify-content:space-between; align-items:flex-start; }
+    .today-day-num { font-size:48px; font-weight:900; line-height:1; letter-spacing:-2px; }
+    .today-label { font-size:11px; opacity:.8; margin-bottom:3px; }
+    .stage-badge {
+      background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.35);
+      padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700;
+    }
+    .stage-name-big { font-size:15px; font-weight:700; margin-top:8px; }
+    .prog-bar { background:rgba(255,255,255,.25); border-radius:8px; height:6px; margin-top:10px; overflow:hidden; }
+    .prog-fill { height:100%; background:white; border-radius:8px; transition:width .4s; }
+    .prog-text { font-size:11px; opacity:.8; margin-top:4px; }
+
+    /* FASTING TIMER */
+    .timer-card {
+      background:white; border-radius:16px; padding:16px;
+      margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.07);
+    }
+    .timer-status {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700;
+      margin-bottom:10px;
+    }
+    .timer-status.fasting { background:#EDE9FE; color:#5B21B6; }
+    .timer-status.eating { background:#D1FAE5; color:#065F46; }
+    .timer-status.done { background:#D1FAE5; color:#065F46; }
+    .timer-big {
+      font-size:36px; font-weight:900; letter-spacing:-1px;
+      font-variant-numeric:tabular-nums; line-height:1; margin-bottom:4px;
+    }
+    .timer-sub { font-size:12px; color:var(--text-muted); margin-bottom:12px; }
+    .timer-info { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+    .timer-info-box {
+      background:var(--bg); border-radius:10px; padding:10px;
+      text-align:center;
+    }
+    .timer-info-label { font-size:10px; color:var(--text-muted); margin-bottom:3px; }
+    .timer-info-val { font-size:15px; font-weight:700; }
+    .timer-btns { display:flex; gap:8px; }
+    .timer-btn {
+      flex:1; padding:10px; border-radius:10px; font-size:13px;
+      font-weight:700; cursor:pointer; border:none; font-family:inherit;
+      transition:all .15s;
+    }
+    .timer-btn:active { transform:scale(.96); }
+    .timer-btn-first { background:var(--primary); color:white; }
+    .timer-btn-last { background:#EF4444; color:white; }
+    .timer-btn-clear { background:var(--bg); color:var(--text-muted); border:1px solid var(--border); font-size:12px; }
+    .meal-log-list { margin-top:10px; display:flex; flex-direction:column; gap:6px; }
+    .meal-log-item { display:flex; align-items:center; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; padding:8px 12px; gap:8px; }
+    .meal-log-num { font-size:12px; color:var(--text-muted); flex:1; }
+    .meal-log-time { font-size:16px; font-weight:700; color:var(--primary); cursor:pointer; background:#EEF2FF; border-radius:8px; padding:4px 10px; transition:background .15s; }
+    .meal-log-time:active { background:#C7D2FE; }
+    .meal-log-del { background:none; border:none; color:var(--text-muted); font-size:14px; padding:2px 6px; cursor:pointer; margin-left:4px; }
+    .time-edit-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:500; display:flex; align-items:flex-end; justify-content:center; }
+    .time-edit-sheet { background:white; border-radius:20px 20px 0 0; padding:24px 20px 36px; width:100%; max-width:480px; box-sizing:border-box; }
+    .time-edit-title { font-size:15px; font-weight:700; margin-bottom:20px; color:var(--text); }
+    .time-edit-selects { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:20px; }
+    .time-edit-select { flex:1; font-size:28px; font-weight:700; color:var(--primary); text-align:center; border:2px solid var(--primary); border-radius:12px; padding:12px 4px; background:white; font-family:inherit; outline:none; -webkit-appearance:none; appearance:none; }
+    .time-edit-colon { font-size:28px; font-weight:900; color:var(--primary); flex-shrink:0; }
+    .time-edit-btns { display:flex; gap:10px; }
+    .time-edit-cancel { flex:1; padding:14px; border:1px solid var(--border); background:var(--bg); border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; color:var(--text); }
+    .time-edit-save { flex:1; padding:14px; background:var(--primary); color:white; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+    /* WEIGHT ENTRY */
+    .weight-row {
+      display:flex; align-items:center; gap:10px; padding:10px 0;
+      border-bottom:1px solid var(--border);
+    }
+    .weight-row:last-child { border-bottom:none; }
+    .weight-input-wrap { display:flex; align-items:center; gap:6px; flex:1; justify-content:flex-end; }
+    .weight-input {
+      width:80px; text-align:right; border:1px solid var(--border);
+      border-radius:8px; padding:7px 10px; font-size:16px; font-weight:700;
+      color:var(--text); font-family:inherit; outline:none;
+    }
+    .weight-input:focus { border-color:var(--primary); }
+    .weight-unit { font-size:14px; font-weight:600; color:var(--text-muted); }
+
+    /* CHECKLIST */
+    .check-item {
+      display:flex; align-items:center; gap:12px; padding:10px 0;
+      border-bottom:1px solid var(--border); cursor:pointer;
+      user-select:none; transition:opacity .15s;
+    }
+    .check-item:last-child { border-bottom:none; }
+    .check-item:active { opacity:.7; }
+    .check-box {
+      width:24px; height:24px; border:2px solid #CBD5E1; border-radius:6px;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      font-size:13px; transition:all .2s;
+    }
+    .check-item.checked .check-box { background:var(--success); border-color:var(--success); color:white; }
+    .check-label { flex:1; font-size:14px; font-weight:500; }
+    .check-item.checked .check-label { color:var(--text-muted); text-decoration:line-through; }
+    .check-sub { font-size:11px; color:var(--text-muted); margin-top:1px; font-weight:400; }
+
+    /* EXERCISE QUICK */
+    .ex-list { display:flex; flex-direction:column; gap:8px; }
+    .ex-item {
+      background:var(--bg); border-radius:10px; padding:10px 12px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .ex-item-info { flex:1; }
+    .ex-item-type { font-size:14px; font-weight:700; }
+    .ex-item-detail { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .ex-delete { background:none; border:none; font-size:18px; cursor:pointer; color:var(--text-muted); padding:4px; }
+    .btn-add-ex {
+      width:100%; padding:10px; border-radius:10px; background:var(--bg);
+      border:1.5px dashed var(--border); font-size:13px; color:var(--text-muted);
+      cursor:pointer; font-weight:600; font-family:inherit; margin-top:8px;
+    }
+    .btn-add-ex:active { background:var(--border); }
+
+    /* CALENDAR */
+    .cal-nav-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .cal-nav-btn {
+      background:white; border:1px solid var(--border); border-radius:10px;
+      padding:7px 14px; cursor:pointer; font-size:14px; color:var(--text);
+      box-shadow:0 1px 3px rgba(0,0,0,.06);
+    }
+    .cal-month-label { font-size:18px; font-weight:800; }
+    .cal-grid { background:white; border-radius:14px; padding:12px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .cal-headers { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:5px; }
+    .cal-dh { text-align:center; font-size:11px; font-weight:700; color:var(--text-muted); padding:3px 0; }
+    .cal-dh:first-child { color:#EF4444; }
+    .cal-dh:last-child { color:#3B82F6; }
+    .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+    .cal-cell {
+      aspect-ratio:1; border-radius:9px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; cursor:pointer;
+      font-size:12px; font-weight:500; position:relative;
+      transition:transform .1s; border:2px solid transparent;
+    }
+    .cal-cell:active { transform:scale(.9); }
+    .cal-cell.empty { cursor:default; pointer-events:none; }
+    .cal-cell.today { border-color:var(--primary)!important; font-weight:800; }
+    .cal-cell.s1 { background:var(--s1bg); color:var(--s1t); }
+    .cal-cell.s2 { background:var(--s2bg); color:var(--s2t); }
+    .cal-cell.s3 { background:var(--s3bg); color:var(--s3t); }
+    .cal-cell.s4 { background:var(--s4bg); color:var(--s4t); }
+    .cal-cell.s5 { background:var(--s5bg); color:var(--s5t); }
+    .cal-cell-dnum { font-size:7px; opacity:.7; line-height:1; }
+    .cal-cell-wt { font-size:7px; font-weight:700; opacity:.8; line-height:1; }
+    .cal-dots { display:flex; gap:2px; position:absolute; bottom:2px; }
+    .dot { width:5px; height:5px; border-radius:50%; }
+    .dot-ok { background:var(--success); }
+    .dot-fail { background:var(--danger); }
+    .dot-fast { background:#7C3AED; }
+    .dot-cheat { background:#F59E0B; }
+
+    .legend-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .leg { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted); }
+    .leg-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+    /* DIET TAB */
+    .stage-card-big { border-radius:14px; padding:16px; margin-bottom:12px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .sc-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .sc-dot { width:14px; height:14px; border-radius:4px; flex-shrink:0; }
+    .sc-title { font-size:15px; font-weight:800; }
+    .sc-current { margin-left:auto; background:var(--primary); color:white; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:700; }
+    .sc-days { font-size:11px; color:var(--text-muted); margin-bottom:8px; }
+    .meal-list { list-style:none; }
+    .meal-list li { padding:4px 0; font-size:13px; display:flex; align-items:flex-start; gap:6px; }
+    .meal-list li::before { content:"•"; color:var(--primary); font-weight:800; flex-shrink:0; }
+    .info-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .chip { background:var(--bg); border:1px solid var(--border); border-radius:16px; padding:4px 10px; font-size:11px; font-weight:600; }
+    .chip-red { background:#FEE2E2; border-color:#FECACA; color:#991B1B; }
+    .tip-box { margin-top:10px; background:var(--bg); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--text-muted); line-height:1.5; }
+
+    /* LOG/STATS TAB */
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .stat-box { background:white; border-radius:14px; padding:14px; text-align:center; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+    .stat-num { font-size:30px; font-weight:900; line-height:1; }
+    .stat-lbl { font-size:11px; color:var(--text-muted); margin-top:4px; }
+    .bar-item { margin-bottom:11px; }
+    .bar-top { display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; }
+    .bar-track { background:var(--bg); border-radius:6px; height:7px; overflow:hidden; }
+    .bar-fill { height:100%; border-radius:6px; transition:width .4s; }
+
+    /* WEIGHT CHART */
+    .wt-chart-wrap { overflow:hidden; border-radius:10px; }
+    .wt-no-data { text-align:center; padding:30px; color:var(--text-muted); font-size:13px; }
+    .wt-summary { display:flex; justify-content:space-around; margin-top:10px; }
+    .wt-sum-item { text-align:center; }
+    .wt-sum-val { font-size:18px; font-weight:800; }
+    .wt-sum-lbl { font-size:10px; color:var(--text-muted); }
+
+    /* EXERCISE LOG */
+    .ex-log-item {
+      display:flex; align-items:center; gap:10px;
+      padding:10px 0; border-bottom:1px solid var(--border);
+    }
+    .ex-log-item:last-child { border-bottom:none; }
+    .ex-log-date { font-size:11px; color:var(--text-muted); width:40px; flex-shrink:0; }
+    .ex-log-type { font-size:14px; font-weight:700; }
+    .ex-log-detail { font-size:11px; color:var(--text-muted); margin-top:1px; }
+    .ex-log-badge {
+      margin-left:auto; padding:3px 8px; border-radius:10px;
+      font-size:11px; font-weight:700; flex-shrink:0;
+    }
+    .badge-high { background:#FEE2E2; color:#991B1B; }
+    .badge-mid { background:#FEF3C7; color:#92400E; }
+    .badge-low { background:#D1FAE5; color:#065F46; }
+
+    /* SETTINGS */
+    .set-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+    .set-row:last-child { border-bottom:none; }
+    .set-lbl { font-size:15px; font-weight:500; }
+    .set-sub { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .set-input { border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; background:var(--bg); color:var(--text); width:180px; }
+    input[type="date"] { border:1px solid var(--border); border-radius:10px; padding:7px 10px; font-size:14px; color:var(--text); background:white; -webkit-appearance:none; }
+
+    /* BUTTONS */
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:9px 18px; border-radius:10px; font-size:14px; font-weight:700; cursor:pointer; border:none; transition:all .15s; font-family:inherit; }
+    .btn:active { transform:scale(.96); }
+    .btn-primary { background:var(--primary); color:white; }
+    .btn-danger { background:var(--danger); color:white; }
+    .btn-success { background:var(--success); color:white; }
+    .btn-outline { background:white; border:1px solid var(--border); color:var(--text); }
+    .btn-sm { padding:7px 14px; font-size:13px; }
+    .btn-full { width:100%; }
+
+    .forbidden-box { background:#FFF7ED; border:1px solid #FED7AA; border-radius:12px; padding:14px; font-size:13px; color:#92400E; line-height:1.9; }
+    .rules-list { list-style:none; }
+    .rules-list li { padding:6px 0; font-size:14px; display:flex; align-items:flex-start; gap:8px; border-bottom:1px solid var(--border); }
+    .rules-list li:last-child { border-bottom:none; }
+
+    /* MODAL */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:300; align-items:flex-end; justify-content:center; }
+    .modal-overlay.open { display:flex; }
+    .modal { background:white; border-radius:22px 22px 0 0; padding:20px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; }
+    .modal-handle { width:36px; height:4px; background:var(--border); border-radius:2px; margin:0 auto 14px; }
+    .modal-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .modal-title { font-size:17px; font-weight:800; }
+    .modal-close { font-size:20px; cursor:pointer; color:var(--text-muted); background:var(--bg); border:none; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+    .fast24-bar { background:#FEE2E2; border-radius:10px; padding:10px 14px; margin-bottom:10px; font-size:13px; color:#991B1B; font-weight:600; display:flex; align-items:center; gap:8px; }
+
+    /* EXERCISE ADD MODAL */
+    .ex-modal { background:white; border-radius:22px 22px 0 0; padding:20px; width:100%; max-width:480px; }
+    .ex-type-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+    .ex-type-btn {
+      padding:10px 4px; border-radius:10px; border:2px solid var(--border);
+      background:white; cursor:pointer; font-size:13px; font-weight:600;
+      text-align:center; transition:all .15s; font-family:inherit;
+    }
+    .ex-type-btn.selected { border-color:var(--primary); background:#EEF2FF; color:var(--primary); }
+    .intensity-row { display:flex; gap:8px; margin-bottom:14px; }
+    .intensity-btn {
+      flex:1; padding:9px; border-radius:10px; border:2px solid var(--border);
+      background:white; cursor:pointer; font-size:13px; font-weight:600;
+      text-align:center; font-family:inherit;
+    }
+    .intensity-btn.selected { border-color:var(--primary); background:#EEF2FF; color:var(--primary); }
+    .form-row { margin-bottom:14px; }
+    .form-label { font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+    .form-input { width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:var(--text); outline:none; }
+    .form-input:focus { border-color:var(--primary); }
+    textarea.form-input { resize:vertical; min-height:70px; }
+
+    /* MISC */
+    .empty-state { text-align:center; padding:50px 20px; }
+    .empty-state .big-emoji { font-size:56px; margin-bottom:12px; }
+    .empty-state h2 { font-size:19px; font-weight:800; margin-bottom:8px; }
+    .empty-state p { color:var(--text-muted); font-size:14px; line-height:1.5; }
+    textarea { width:100%; border:1px solid var(--border); border-radius:10px; padding:11px; font-size:14px; font-family:inherit; resize:vertical; min-height:75px; color:var(--text); background:white; outline:none; }
+    textarea:focus { border-color:var(--primary); }
+    .section-title { font-size:14px; font-weight:700; color:var(--text); margin:14px 0 8px; }
+    .notif-status { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; }
+    .notif-granted { background:#D1FAE5; color:#065F46; }
+    .notif-denied { background:#FEE2E2; color:#991B1B; }
+    .notif-default { background:#FEF3C7; color:#92400E; }
+    .divider { height:1px; background:var(--border); margin:12px 0; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>🔆 스위치온 다이어트</h1>
+    <button class="refresh-btn" onclick="location.href=location.pathname+'?v='+Date.now()" title="새로고침">↻</button>
+  </div>
+  <div class="header-sub" id="headerSub">오늘도 파이팅!</div>
+</div>
+
+<!-- HOME -->
+<div id="v-home" class="view active">
+  <div id="home-content"></div>
+</div>
+
+<!-- CALENDAR -->
+<div id="v-calendar" class="view">
+  <div class="cal-nav-row">
+    <button class="cal-nav-btn" id="prevMonth">◀</button>
+    <span class="cal-month-label" id="calLabel"></span>
+    <button class="cal-nav-btn" id="nextMonth">▶</button>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-headers">
+      <div class="cal-dh">일</div><div class="cal-dh">월</div>
+      <div class="cal-dh">화</div><div class="cal-dh">수</div>
+      <div class="cal-dh">목</div><div class="cal-dh">금</div>
+      <div class="cal-dh">토</div>
+    </div>
+    <div class="cal-days" id="calDays"></div>
+  </div>
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">범례</div>
+    <div class="legend-row">
+      <div class="leg"><div class="leg-dot" style="background:var(--s1)"></div>1단계</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--s2)"></div>2단계</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--s3)"></div>3단계</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--s4)"></div>4단계</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--s5)"></div>5단계</div>
+    </div>
+    <div class="legend-row" style="margin-top:6px">
+      <div class="leg"><div class="dot dot-ok" style="width:10px;height:10px;border-radius:3px;flex-shrink:0"></div>완료</div>
+      <div class="leg"><div class="dot dot-fail" style="width:10px;height:10px;border-radius:3px;flex-shrink:0"></div>미완료</div>
+      <div class="leg"><div class="dot dot-fast" style="width:10px;height:10px;border-radius:3px;flex-shrink:0"></div>24h 단식</div>
+      <div class="leg"><div class="dot dot-cheat" style="width:10px;height:10px;border-radius:3px;flex-shrink:0"></div>예외일</div>
+    </div>
+  </div>
+</div>
+
+<!-- DIET -->
+<div id="v-diet" class="view">
+  <div id="diet-content"></div>
+</div>
+
+<!-- LOG -->
+<div id="v-log" class="view">
+  <div id="log-content"></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="v-settings" class="view">
+  <div class="card">
+    <div class="card-title">프로그램 설정</div>
+    <div class="set-row">
+      <div><div class="set-lbl">시작 날짜</div><div class="set-sub">28일 프로그램 D+1</div></div>
+      <input type="date" id="startDateInput">
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">저장</div><div class="set-sub">변경 후 반드시 저장</div></div>
+      <button class="btn btn-primary btn-sm" onclick="saveStartDate()">저장</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">알림 설정</div>
+    <div class="set-row">
+      <div>
+        <div class="set-lbl">브라우저 알림 권한</div>
+        <div class="set-sub" id="notifStatusText">권한 상태 확인 중...</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="requestNotifPermission()" id="notifBtn">권한 요청</button>
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">브라우저 알림 사용</div><div class="set-sub">끄면 텔레그램으로만 발송</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifBrowserEnabled" onchange="saveNotifSettings()" checked>
+      </label>
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">공복 완료 알림 (14h)</div><div class="set-sub">마지막 식사 14시간 후</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifFastEnd" onchange="saveNotifSettings()" checked>
+      </label>
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">단식 달성 알림 (24h)</div><div class="set-sub">24시간 공복 달성 시</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifFast24h" onchange="saveNotifSettings()" checked>
+      </label>
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">장기 단식 알림 (36h)</div><div class="set-sub">36시간 공복 달성 시</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifFast36h" onchange="saveNotifSettings()">
+      </label>
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">식사 가능 알림</div><div class="set-sub">식사 윈도우 시작 시</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifEatStart" onchange="saveNotifSettings()" checked>
+      </label>
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">식사 마감 알림</div><div class="set-sub">식사 윈도우 종료 1시간 전 + 정시</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifEatEnd" onchange="saveNotifSettings()" checked>
+      </label>
+    </div>
+    <div class="set-row" style="border-bottom:none">
+      <div><div class="set-lbl">저녁 10시 리포트</div><div class="set-sub">하루 달성 현황 요약</div></div>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="notifDailyReport" onchange="saveNotifSettings()" checked>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📨 텔레그램 알림</div>
+    <div class="set-row">
+      <div><div class="set-lbl">Bot Token</div><div class="set-sub">@BotFather에서 발급</div></div>
+      <input type="text" id="tgToken" class="set-input" placeholder="123456:ABC..." oninput="saveTgSettings()">
+    </div>
+    <div class="set-row">
+      <div><div class="set-lbl">Chat ID</div><div class="set-sub">@userinfobot에서 확인</div></div>
+      <input type="text" id="tgChatId" class="set-input" placeholder="12345678" oninput="saveTgSettings()">
+    </div>
+    <div class="set-row" style="border-bottom:none">
+      <div><div class="set-lbl">연결 테스트</div><div class="set-sub" id="tgStatusText">입력 후 테스트하세요</div></div>
+      <button class="btn btn-outline btn-sm" onclick="testTelegram()" id="tgTestBtn">테스트 발송</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">기본 수칙</div>
+    <ul class="rules-list">
+      <li><span>💧</span> 하루 2리터 이상 물 섭취</li>
+      <li><span>😴</span> 최소 6시간 수면 (자정~오전 4시 필수)</li>
+      <li><span>⏰</span> 14시간 단식 / 10시간 식사</li>
+      <li><span>🍽️</span> 저녁 식사는 취침 4시간 전 완료</li>
+      <li><span>🏃</span> 주 4회 이상 고강도 운동</li>
+      <li><span>💊</span> 영양제 섭취</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">금지 식품</div>
+    <div class="forbidden-box">
+      🚫 설탕류 (정백당, 액상과당)<br>
+      🚫 청량음료 (콜라, 사이다, 에너지 음료)<br>
+      🚫 밀가루 음식 (빵, 면류, 과자)<br>
+      🚫 알코올<br>
+      🚫 포화지방 / 트랜스지방<br>
+      🚫 짠 음식 (나트륨 과다)<br>
+      🚫 대체당 (인공감미료)
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">데이터 관리</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="exportData()">📤 내보내기</button>
+      <button class="btn btn-outline btn-sm" onclick="importData()">📥 가져오기</button>
+      <button class="btn btn-danger btn-sm" onclick="resetData()">🗑 초기화</button>
+    </div>
+    <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImport(event)">
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="switchView('home',this)"><span class="icon">🏠</span><span>홈</span></button>
+  <button class="nav-btn" onclick="switchView('calendar',this)"><span class="icon">📅</span><span>달력</span></button>
+  <button class="nav-btn" onclick="switchView('diet',this)"><span class="icon">🥗</span><span>식단</span></button>
+  <button class="nav-btn" onclick="switchView('log',this)"><span class="icon">💪</span><span>기록</span></button>
+  <button class="nav-btn" onclick="switchView('settings',this)"><span class="icon">⚙️</span><span>설정</span></button>
+</div>
+
+<!-- DAY DETAIL MODAL -->
+<div class="modal-overlay" id="dayModal" onclick="handleModalBg(event)">
+  <div class="modal"><div class="modal-handle"></div><div id="modalInner"></div></div>
+</div>
+
+<!-- EXERCISE ADD MODAL -->
+<div class="modal-overlay" id="exModal" onclick="handleExModalBg(event)">
+  <div class="ex-modal">
+    <div class="modal-handle"></div>
+    <div class="modal-hd">
+      <div class="modal-title">운동 기록 추가</div>
+      <button class="modal-close" onclick="closeExModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-label">운동 종류</div>
+      <div class="ex-type-grid" id="exTypeGrid">
+        <button class="ex-type-btn" onclick="selectExType(this,'런닝')">🏃 런닝</button>
+        <button class="ex-type-btn" onclick="selectExType(this,'웨이트')">🏋️ 웨이트</button>
+        <button class="ex-type-btn" onclick="selectExType(this,'수영')">🏊 수영</button>
+        <button class="ex-type-btn" onclick="selectExType(this,'자전거')">🚴 자전거</button>
+        <button class="ex-type-btn" onclick="selectExType(this,'요가')">🧘 요가</button>
+        <button class="ex-type-btn" onclick="selectExType(this,'기타')">💪 기타</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">강도</div>
+      <div class="intensity-row">
+        <button class="intensity-btn" onclick="selectIntensity(this,'저강도')">저강도</button>
+        <button class="intensity-btn" onclick="selectIntensity(this,'중강도')">중강도</button>
+        <button class="intensity-btn" onclick="selectIntensity(this,'고강도')">고강도</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-label">시간 (분)</div>
+      <input type="number" class="form-input" id="exDuration" placeholder="30" min="1" max="300">
+    </div>
+    <div class="form-row">
+      <div class="form-label">메모 (선택)</div>
+      <textarea class="form-input" id="exNote" placeholder="예: 5km 런닝, 상체 웨이트..."></textarea>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="saveExercise()">저장</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STAGE DEFINITIONS
+// ═══════════════════════════════════════════════
+const STAGES = [
+  { num:1, cls:'s1', color:'var(--s1)', days:[1,2,3], name:'장 휴식 & 시작', dayRange:'1~3일차',
+    meals:['단백질 음료 ① (아침)','단백질 음료 ② (점심)','단백질 음료 ③ (오후)','단백질 음료 ④ (저녁)'],
+    exercise:'하루 60분 이상 가벼운 산책', fasting:'14시간 단식 / 10시간 식사 윈도우',
+    weekly24h:0, coffee:false, fruit:false,
+    tips:'장 점막을 쉬게 하는 단계입니다. 음료 외 음식 섭취 금지. 충분한 수분 섭취가 핵심!' },
+  { num:2, cls:'s2', color:'var(--s2)', days:[4,5,6,7], name:'렙틴 저항성 개선', dayRange:'4~7일차',
+    meals:['단백질 음료 ① (아침)','점심: 저탄수 식단 (단백질+채소)','단백질 음료 ② (오후)','단백질 음료 ③ (저녁)'],
+    exercise:'고강도 운동 시작 — 주 4회 이상', fasting:'14시간 단식 / 10시간 식사 윈도우',
+    weekly24h:0, coffee:false, fruit:false,
+    tips:'렙틴 저항성을 개선하는 단계. 점심은 닭가슴살·달걀·두부 등 단백질+채소 위주로 구성하세요.' },
+  { num:3, cls:'s3', color:'var(--s3)', days:[8,9,10,11,12,13,14], name:'커피 허용 & 24h 단식', dayRange:'8~14일차',
+    meals:['단백질 음료 ① (아침)','점심: 저탄수 식단 (단백질+채소)','단백질 음료 ② (오후)'],
+    exercise:'주 4회 이상 고강도 운동', fasting:'14시간 단식 / 10시간 식사 + 주 1회 24h 단식',
+    weekly24h:1, coffee:true, fruit:false,
+    tips:'드디어 커피 허용 (설탕·크림 없이)! 이번 주 하루를 골라 24시간 완전 단식을 실시하세요.' },
+  { num:4, cls:'s4', color:'var(--s4)', days:[15,16,17,18,19,20,21], name:'과일 추가 & 근력 회복', dayRange:'15~21일차',
+    meals:['단백질 음료 ① (아침)','점심: 저탄수 식단 + 과일 허용','단백질 음료 ② (오후)'],
+    exercise:'근력 회복 중점 — 주 4회 이상', fasting:'14시간 단식 / 10시간 식사 + 주 2회 24h 단식',
+    weekly24h:2, coffee:true, fruit:true,
+    tips:'과일이 해금됩니다! 당도 높은 과일은 소량만. 근력 운동에 집중하고 24h 단식 2회 실시하세요.' },
+  { num:5, cls:'s5', color:'var(--s5)', days:[22,23,24,25,26,27,28], name:'완성 단계', dayRange:'22~28일차',
+    meals:['단백질 음료 ① (아침)','점심: 저탄수 식단','단백질 음료 ② (오후)','저녁: 저탄수 식단'],
+    exercise:'주 4회 이상 고강도 운동', fasting:'14시간 단식 / 10시간 식사 + 주 3회 24h 단식',
+    weekly24h:3, coffee:true, fruit:true,
+    tips:'마지막 단계! 점심·저녁 모두 저탄수. 24h 단식을 주 3회 실시하세요. 거의 다 왔어요 💪' },
+];
+const DAY_STAGE = {};
+STAGES.forEach(s => s.days.forEach(d => DAY_STAGE[d] = s));
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+function loadState() {
+  const def = { startDate:'', logs:{}, notif:{ browserEnabled:true, fastEnd:true, eatEnd:true, fast24h:true, fast36h:false, eatStart:true, dailyReport:true, tgToken:'', tgChatId:'' } };
+  try { const r = localStorage.getItem('switchOnV2'); return r ? JSON.parse(r) : def; }
+  catch { return def; }
+}
+function save() { localStorage.setItem('switchOnV2', JSON.stringify(ST)); }
+
+let ST = loadState();
+if (!ST.notif) ST.notif = {};
+// 기존 데이터 마이그레이션
+const _notifDef = { browserEnabled:true, fastEnd:true, eatEnd:true, fast24h:true, fast36h:false, eatStart:true, dailyReport:true, tgToken:'', tgChatId:'' };
+Object.keys(_notifDef).forEach(k => { if (ST.notif[k] === undefined) ST.notif[k] = _notifDef[k]; });
+let calYear, calMonth;
+{ const ref = ST.startDate ? strToDate(ST.startDate) : new Date(); calYear=ref.getFullYear(); calMonth=ref.getMonth(); }
+
+// ═══════════════════════════════════════════════
+// DATE UTILS
+// ═══════════════════════════════════════════════
+function dateStr(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function strToDate(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function todayStr() { return dateStr(new Date()); }
+function getDietDay(ds) {
+  if (!ST.startDate) return null;
+  const diff = Math.floor((strToDate(ds)-strToDate(ST.startDate))/86400000);
+  return (diff>=0&&diff<28) ? diff+1 : null;
+}
+function getStageByDay(d) { return DAY_STAGE[d]||null; }
+function isComplete(log) { return !!(log && (log.cheatDay || (log.water&&log.sleep&&log.fast))); }
+
+// ═══════════════════════════════════════════════
+// TIMER SYSTEM
+// ═══════════════════════════════════════════════
+let timerInterval = null;
+let notifTimers = [];
+
+function getPrevDayLastMeal() {
+  // 최대 2일 전까지 마지막 식사 기록 탐색
+  for (let i = 1; i <= 2; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = dateStr(d);
+    if (ST.logs[ds]?.lastMeal) {
+      return { ds, time: ST.logs[ds].lastMeal };
+    }
+  }
+  return null;
+}
+
+function parseTime(timeStr) {
+  // timeStr = "HH:MM"
+  if (!timeStr) return null;
+  const [h,m] = timeStr.split(':').map(Number);
+  return h*60+m; // minutes since midnight
+}
+
+function minutesToHHMM(mins) {
+  const h = Math.floor(((mins%1440)+1440)%1440/60);
+  const m = ((mins%1440)+1440)%1440%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+function formatDuration(ms) {
+  if (ms < 0) ms = 0;
+  const totalSec = Math.floor(ms/1000);
+  const h = Math.floor(totalSec/3600);
+  const m = Math.floor((totalSec%3600)/60);
+  const s = totalSec%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function getTimerState() {
+  const t = todayStr();
+  const log = ST.logs[t] || {};
+  const now = new Date();
+  const nowMins = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
+
+  const firstMeal = parseTime(log.firstMeal);  // today's first meal (mins since midnight)
+  const lastMeal = parseTime(log.lastMeal);    // today's last meal
+
+  if (!lastMeal && !firstMeal) {
+    // 전날 마지막 식사 기록 있으면 공복 시간 표시
+    const prev = getPrevDayLastMeal();
+    if (prev) {
+      const [ph, pm] = prev.time.split(':').map(Number);
+      const [py, pmo, pd] = prev.ds.split('-').map(Number);
+      const lastMealDate = new Date(py, pmo - 1, pd, ph, pm, 0, 0);
+      const elapsedMs = now - lastMealDate;
+      const elapsedMins = elapsedMs / 60000;
+      const fastEndDate = new Date(lastMealDate.getTime() + 14 * 60 * 60 * 1000);
+      const fastEndMins = fastEndDate.getHours() * 60 + fastEndDate.getMinutes();
+      const fastingRemainMs = fastEndDate - now;
+
+      // 전날 기준 — 경과 공복 시간만 표시
+      return {
+        state: 'fasting',
+        label: '공복 중',
+        timerMs: elapsedMs,
+        sub: `마지막 식사 ${prev.time} 기준`,
+        nextMeal: null,
+        fastEndMs: fastingRemainMs,
+      };
+    }
+    return { state:'no-data', label:'식사 기록 없음', timerMs:0, sub:'아래 버튼으로 식사 시간을 기록하세요', nextMeal:null };
+  }
+
+  // If last meal is set, we're tracking the fasting period
+  if (lastMeal !== null) {
+    // Fasting window: lastMeal + 14h
+    const fastEndMins = lastMeal + 14*60;
+    let minutesFasted = nowMins - lastMeal;
+    if (minutesFasted < 0) minutesFasted += 1440; // crossed midnight
+    const fastingRemainMs = (14*60 - minutesFasted) * 60000;
+
+    if (minutesFasted < 14*60) {
+      // Still fasting
+      return {
+        state:'fasting',
+        label:'공복 중',
+        timerMs: minutesFasted * 60000,
+        sub: `${minutesToHHMM(fastEndMins)}부터 식사 가능 · ${Math.floor(fastingRemainMs/3600000)}시간 ${Math.floor((fastingRemainMs%3600000)/60000)}분 남음`,
+        nextMeal: minutesToHHMM(fastEndMins),
+        fastEndMs: fastingRemainMs,
+      };
+    } else {
+      // Fasting complete, can eat
+      const eatingMins = minutesFasted - 14*60;
+      const eatWindowEnd = fastEndMins + 10*60;
+      const eatRemainMins = eatWindowEnd - nowMins;
+      return {
+        state:'can-eat',
+        label:'식사 가능 시간!',
+        timerMs: eatingMins * 60000,
+        sub: `${minutesToHHMM(eatWindowEnd)}까지 식사 가능 · ${Math.max(0,Math.floor(eatRemainMins))}분 남음`,
+        nextMeal: minutesToHHMM(fastEndMins),
+        eatWindowEnd,
+      };
+    }
+  }
+
+  // Only first meal is set — show eating window
+  if (firstMeal !== null) {
+    const eatingMins = nowMins - firstMeal;
+    const eatWindowEnd = firstMeal + 10*60;
+    const eatRemainMins = eatWindowEnd - nowMins;
+    return {
+      state:'eating',
+      label:'식사 윈도우 진행 중',
+      timerMs: Math.max(0, eatingMins) * 60000,
+      sub: `${minutesToHHMM(eatWindowEnd)}까지 식사 가능 · ${Math.max(0,Math.floor(eatRemainMins))}분 남음`,
+      nextMeal: minutesToHHMM(firstMeal + 10*60 + 14*60),
+    };
+  }
+
+  return { state:'no-data', label:'식사 기록 없음', timerMs:0, sub:'' };
+}
+
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimerDisplay, 1000);
+}
+
+function updateTimerDisplay() {
+  const ts = getTimerState();
+  const bigEl = document.getElementById('timerBig');
+  const statusEl = document.getElementById('timerStatus');
+  const subEl = document.getElementById('timerSub');
+  if (!bigEl) return;
+
+  if (ts.state === 'no-data') {
+    bigEl.textContent = '--:--:--';
+  } else {
+    bigEl.textContent = formatDuration(ts.timerMs);
+  }
+  if (subEl) subEl.textContent = ts.sub;
+}
+
+// ═══════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function fireNotification(title, body) {
+  if (Notification.permission === 'granted' && ST.notif.browserEnabled !== false) {
+    new Notification(title, { body, icon: '🔆' });
+  }
+  sendTelegram(`${title}\n${body}`);
+}
+
+// ─── TELEGRAM ───────────────────────────────────
+async function sendTelegram(text) {
+  const token = ST.notif.tgToken?.trim();
+  const chatId = ST.notif.tgChatId?.trim();
+  if (!token || !chatId) return false;
+  try {
+    const params = new URLSearchParams({ chat_id: chatId, text });
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      body: params
+    });
+    const data = await res.json();
+    if (!data.ok) console.warn('Telegram API error:', data.description);
+    return data.ok === true;
+  } catch(e) { console.warn('Telegram fetch error', e); return false; }
+}
+
+function saveTgSettings() {
+  ST.notif.tgToken = document.getElementById('tgToken')?.value?.trim() || '';
+  ST.notif.tgChatId = document.getElementById('tgChatId')?.value?.trim() || '';
+  save();
+}
+
+async function testTelegram() {
+  const btn = document.getElementById('tgTestBtn');
+  const status = document.getElementById('tgStatusText');
+  // 버튼 클릭 시점에 입력값을 다시 읽어서 저장
+  ST.notif.tgToken = document.getElementById('tgToken')?.value?.trim() || '';
+  ST.notif.tgChatId = document.getElementById('tgChatId')?.value?.trim() || '';
+  save();
+  if (!ST.notif.tgToken || !ST.notif.tgChatId) {
+    if (status) status.textContent = '❌ Token과 Chat ID를 먼저 입력하세요';
+    return;
+  }
+  btn.textContent = '전송 중...';
+  btn.disabled = true;
+  const token = ST.notif.tgToken;
+  const chatId = ST.notif.tgChatId;
+  try {
+    const params = new URLSearchParams({ chat_id: chatId, text: '🔆 스위치온 다이어트\n텔레그램 알림 연결 성공! ✅\n이제 식사시간 알림을 받을 수 있어요.' });
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, { method:'POST', body:params });
+    const data = await res.json();
+    const ok = data.ok === true;
+    if (status) status.textContent = ok ? '✅ 연결 성공!' : `❌ 실패: ${data.description||'알 수 없는 오류'}`;
+    btn.textContent = ok ? '✅ 성공' : '❌ 실패';
+  } catch(e) {
+    if (status) status.textContent = `❌ 네트워크 오류: ${e.message}`;
+    btn.textContent = '❌ 실패';
+  }
+  setTimeout(() => { btn.textContent = '테스트 발송'; btn.disabled = false; }, 3000);
+}
+// ────────────────────────────────────────────────
+
+function requestNotifPermission() {
+  if (!('Notification' in window)) { alert('이 브라우저는 알림을 지원하지 않아요.'); return; }
+  Notification.requestPermission().then(p => { updateNotifStatus(); });
+}
+
+function updateNotifStatus() {
+  const statusEl = document.getElementById('notifStatusText');
+  const btn = document.getElementById('notifBtn');
+  if (!statusEl) return;
+  if (!('Notification' in window)) {
+    statusEl.textContent = '이 브라우저는 알림 미지원';
+    if (btn) btn.style.display = 'none';
+    return;
+  }
+  const p = Notification.permission;
+  if (p === 'granted') { statusEl.textContent = '✅ 알림 허용됨'; if (btn) btn.style.display='none'; }
+  else if (p === 'denied') { statusEl.textContent = '❌ 알림 차단됨 (브라우저 설정에서 변경)'; if (btn) btn.textContent='차단됨'; }
+  else { statusEl.textContent = '⚠️ 알림 권한 필요'; if (btn) btn.textContent='권한 요청'; }
+}
+
+function saveNotifSettings() {
+  ST.notif.browserEnabled = document.getElementById('notifBrowserEnabled')?.checked ?? true;
+  ST.notif.fastEnd   = document.getElementById('notifFastEnd')?.checked ?? true;
+  ST.notif.eatEnd    = document.getElementById('notifEatEnd')?.checked ?? true;
+  ST.notif.fast24h   = document.getElementById('notifFast24h')?.checked ?? true;
+  ST.notif.fast36h   = document.getElementById('notifFast36h')?.checked ?? false;
+  ST.notif.eatStart  = document.getElementById('notifEatStart')?.checked ?? true;
+  ST.notif.dailyReport = document.getElementById('notifDailyReport')?.checked ?? true;
+  save();
+  scheduleAllNotifs();
+}
+
+function canNotify() {
+  return Notification.permission === 'granted' || !!(ST.notif.tgToken?.trim() && ST.notif.tgChatId?.trim());
+}
+
+function scheduleAt(dateObj, title, body) {
+  const delay = dateObj - Date.now();
+  if (delay > 0) notifTimers.push(setTimeout(() => fireNotification(title, body), delay));
+}
+
+function mealTimeToDate(dateStr_, timeStr) {
+  const [y,mo,d] = dateStr_.split('-').map(Number);
+  const [h,m] = timeStr.split(':').map(Number);
+  return new Date(y, mo-1, d, h, m, 0, 0);
+}
+
+function buildDailyReport() {
+  const t = todayStr();
+  const log = ST.logs[t] || {};
+  const dayNum = getDietDay(t);
+  const lines = ['🔆 스위치온 다이어트 하루 리포트'];
+  if (dayNum) lines.push(`📅 D+${dayNum}일차`);
+  lines.push(log.fast    ? '✅ 단식 완료'   : '❌ 단식 미완료');
+  lines.push(log.water   ? '✅ 수분 섭취'   : '❌ 수분 미완료');
+  lines.push(log.sleep   ? '✅ 수면 완료'   : '❌ 수면 미완료');
+  if (log.weight) lines.push(`⚖️ 체중: ${log.weight}kg`);
+  if (log.mealLog?.length) {
+    lines.push(`🍽️ 식사 ${log.mealLog.length}회 (${log.firstMeal} ~ ${log.lastMeal})`);
+  }
+  return lines.join('\n');
+}
+
+function scheduleAllNotifs() {
+  // 기존 타이머 전부 취소
+  notifTimers.forEach(t => clearTimeout(t));
+  notifTimers = [];
+  if (!canNotify()) return;
+
+  const t = todayStr();
+  const log = ST.logs[t] || {};
+
+  // ── 식사 가능 / 마감 알림 (firstMeal 기준) ──────────────
+  if (log.firstMeal) {
+    const firstDate = mealTimeToDate(t, log.firstMeal);
+    const eatWindowEnd = new Date(firstDate.getTime() + 10 * 3600000);
+    const warn1h = new Date(eatWindowEnd.getTime() - 3600000);
+
+    if (ST.notif.eatEnd) {
+      scheduleAt(warn1h,      '🔆 스위치온', '⏰ 식사 마감 1시간 전! 마지막 식사를 준비하세요');
+      scheduleAt(eatWindowEnd,'🔆 스위치온', '🚫 식사 윈도우 종료! 지금부터 공복 시작');
+    }
+  }
+
+  // ── 공복 완료 알림 (lastMeal 기준) ─────────────────────
+  if (log.lastMeal) {
+    const lastDate = mealTimeToDate(t, log.lastMeal);
+    const fast14 = new Date(lastDate.getTime() + 14 * 3600000);
+    const fast24 = new Date(lastDate.getTime() + 24 * 3600000);
+    const fast36 = new Date(lastDate.getTime() + 36 * 3600000);
+
+    if (ST.notif.fastEnd || ST.notif.eatStart) {
+      const eatS = `${String(fast14.getHours()).padStart(2,'0')}:${String(fast14.getMinutes()).padStart(2,'0')}`;
+      const eatE = `${String(new Date(fast14.getTime()+10*3600000).getHours()).padStart(2,'0')}:${String(new Date(fast14.getTime()+10*3600000).getMinutes()).padStart(2,'0')}`;
+      scheduleAt(fast14, '🔆 스위치온', `🎉 공복 14시간 완료! 식사 가능 시간: ${eatS} ~ ${eatE}`);
+    }
+    if (ST.notif.fast24h)  scheduleAt(fast24, '🔆 스위치온', '💪 공복 24시간 달성! 단식 성공!');
+    if (ST.notif.fast36h)  scheduleAt(fast36, '🔆 스위치온', '🏆 공복 36시간 달성! 놀라운 의지력이에요!');
+  }
+
+  // ── 저녁 10시 하루 리포트 ───────────────────────────────
+  if (ST.notif.dailyReport) {
+    const now = new Date();
+    const report = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 22, 0, 0, 0);
+    const delay = report - Date.now();
+    if (delay > 0) notifTimers.push(setTimeout(() => fireNotification('🔆 스위치온 리포트', buildDailyReport()), delay));
+  }
+}
+
+// ═══════════════════════════════════════════════
+// MEAL TIME RECORDING
+// ═══════════════════════════════════════════════
+function addMealRecord() {
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const t = todayStr();
+  if (!ST.logs[t]) ST.logs[t] = {};
+  if (!ST.logs[t].mealLog) ST.logs[t].mealLog = [];
+  ST.logs[t].mealLog.push({ time: timeStr });
+  // 첫 식사 / 마지막 식사 자동 갱신
+  ST.logs[t].firstMeal = ST.logs[t].mealLog[0].time;
+  ST.logs[t].lastMeal = ST.logs[t].mealLog[ST.logs[t].mealLog.length - 1].time;
+  save();
+  scheduleAllNotifs();
+  renderHome();
+}
+
+function editMealRecord(idx) {
+  const t = todayStr();
+  const ml = ST.logs[t]?.mealLog;
+  if (!ml || !ml[idx]) return;
+  const current = ml[idx].time;
+
+  // 기존 모달 제거
+  const existing = document.getElementById('timeEditOverlay');
+  if (existing) existing.remove();
+
+  const [curH, curM] = current.split(':').map(Number);
+  const hourOpts = Array.from({length:24},(_,i)=>`<option value="${i}" ${i===curH?'selected':''}>${String(i).padStart(2,'0')}</option>`).join('');
+  const minOpts = Array.from({length:60},(_,i)=>`<option value="${i}" ${i===curM?'selected':''}>${String(i).padStart(2,'0')}</option>`).join('');
+
+  const overlay = document.createElement('div');
+  overlay.id = 'timeEditOverlay';
+  overlay.className = 'time-edit-overlay';
+  overlay.innerHTML = `
+    <div class="time-edit-sheet">
+      <div class="time-edit-title">${idx+1}번째 식사 시간 수정</div>
+      <div class="time-edit-selects">
+        <select id="timeEditHour" class="time-edit-select">${hourOpts}</select>
+        <span class="time-edit-colon">:</span>
+        <select id="timeEditMin" class="time-edit-select">${minOpts}</select>
+      </div>
+      <div class="time-edit-btns">
+        <button class="time-edit-cancel" onclick="document.getElementById('timeEditOverlay').remove()">취소</button>
+        <button class="time-edit-save" onclick="saveMealEdit(${idx})">저장</button>
+      </div>
+    </div>`;
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function saveMealEdit(idx) {
+  const t = todayStr();
+  const ml = ST.logs[t]?.mealLog;
+  if (!ml || !ml[idx]) return;
+  const h = String(document.getElementById('timeEditHour').value).padStart(2,'0');
+  const m = String(document.getElementById('timeEditMin').value).padStart(2,'0');
+  ml[idx].time = `${h}:${m}`;
+  // firstMeal / lastMeal 재계산
+  ST.logs[t].firstMeal = ml[0].time;
+  ST.logs[t].lastMeal = ml[ml.length - 1].time;
+  save();
+  document.getElementById('timeEditOverlay').remove();
+  renderHome();
+}
+
+function deleteMealRecord(idx) {
+  const t = todayStr();
+  if (!ST.logs[t]?.mealLog) return;
+  ST.logs[t].mealLog.splice(idx, 1);
+  const ml = ST.logs[t].mealLog;
+  ST.logs[t].firstMeal = ml.length ? ml[0].time : null;
+  ST.logs[t].lastMeal = ml.length ? ml[ml.length - 1].time : null;
+  save();
+  renderHome();
+}
+
+function clearMealTimes() {
+  if (!confirm('오늘의 식사 시간 기록을 초기화하시겠습니까?')) return;
+  const t = todayStr();
+  if (ST.logs[t]) {
+    delete ST.logs[t].firstMeal;
+    delete ST.logs[t].lastMeal;
+    delete ST.logs[t].mealLog;
+    save();
+  }
+  renderHome();
+}
+
+// ═══════════════════════════════════════════════
+// VIEW SWITCHING
+// ═══════════════════════════════════════════════
+function switchView(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('v-'+name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name==='home') renderHome();
+  else if (name==='calendar') renderCalendar();
+  else if (name==='diet') renderDiet();
+  else if (name==='log') renderLog();
+  else if (name==='settings') {
+    document.getElementById('startDateInput').value = ST.startDate || todayStr();
+    document.getElementById('notifBrowserEnabled').checked = ST.notif.browserEnabled !== false;
+    document.getElementById('notifFastEnd').checked    = ST.notif.fastEnd;
+    document.getElementById('notifEatEnd').checked     = ST.notif.eatEnd;
+    document.getElementById('notifFast24h').checked    = ST.notif.fast24h;
+    document.getElementById('notifFast36h').checked    = ST.notif.fast36h;
+    document.getElementById('notifEatStart').checked   = ST.notif.eatStart;
+    document.getElementById('notifDailyReport').checked = ST.notif.dailyReport;
+    document.getElementById('tgToken').value  = ST.notif.tgToken || '';
+    document.getElementById('tgChatId').value = ST.notif.tgChatId || '';
+    updateNotifStatus();
+  }
+}
+
+// ═══════════════════════════════════════════════
+// HOME VIEW
+// ═══════════════════════════════════════════════
+function buildTimerCard(log) {
+  const ts = getTimerState();
+  const statusClass = ts.state==='fasting'?'fasting':ts.state==='can-eat'?'done':'eating';
+  const timerColor = ts.state==='fasting'?'var(--s1)':ts.state==='can-eat'?'var(--success)':'var(--success)';
+  const mealItems = (log.mealLog||[]).map((m,i)=>`
+    <div class="meal-log-item">
+      <span class="meal-log-num">${i+1}번째 식사</span>
+      <span class="meal-log-time" onclick="editMealRecord(${i})">${m.time}</span>
+      <button class="meal-log-del" onclick="deleteMealRecord(${i})">✕</button>
+    </div>`).join('');
+  return `<div class="timer-card">
+    <div class="card-title">⏰ 간헐적 단식 타이머</div>
+    <div class="timer-status ${statusClass}" id="timerStatus">
+      ${ts.state==='fasting'?'🚫 공복 중':ts.state==='can-eat'?'✅ 식사 가능!':ts.state==='eating'?'🍽 식사 중':'⏸ 기록 없음'}
+    </div>
+    <div class="timer-big" id="timerBig" style="color:${timerColor}">${ts.state==='no-data'?'--:--:--':formatDuration(ts.timerMs)}</div>
+    <div class="timer-sub" id="timerSub">${ts.sub}</div>
+    <div class="timer-info">
+      <div class="timer-info-box"><div class="timer-info-label">첫 식사</div><div class="timer-info-val">${log.firstMeal||'--:--'}</div></div>
+      <div class="timer-info-box" style="border:1px solid #FCA5A5; background:#FEF2F2;">
+        ${(()=>{
+          if (!log.firstMeal) return '<div class="timer-info-label">식사 마감</div><div class="timer-info-val" style="color:#EF4444">--:--</div>';
+          const deadlineMins = parseTime(log.firstMeal) + 10*60;
+          const deadlineStr = minutesToHHMM(deadlineMins);
+          const now = new Date();
+          const nowMins = now.getHours()*60 + now.getMinutes();
+          const remainMins = Math.max(0, deadlineMins - nowMins);
+          const rh = Math.floor(remainMins/60), rm = remainMins%60;
+          const remainStr = remainMins > 0 ? `${rh > 0 ? rh+'시간 ':''  }${rm}분 남음` : '마감';
+          return `<div class="timer-info-label">오늘 식사 마감</div><div class="timer-info-val" style="color:#EF4444">${deadlineStr}</div><div style="font-size:10px;color:#EF4444;margin-top:2px">${remainStr}</div>`;
+        })()}
+      </div>
+    </div>
+    <div class="timer-btns">
+      <button class="timer-btn timer-btn-first" style="width:100%" onclick="addMealRecord()">🍽 지금 식사 기록</button>
+    </div>
+    ${(log.mealLog||[]).length>0?`<div class="meal-log-list">${mealItems}</div>
+    <button class="timer-btn timer-btn-clear" style="width:100%;margin-top:4px" onclick="clearMealTimes()">전체 초기화</button>`:''}
+  </div>`;
+}
+
+function renderHome() {
+  const t = todayStr();
+  const dayNum = getDietDay(t);
+  const stage = dayNum ? getStageByDay(dayNum) : null;
+  const log = ST.logs[t] || {};
+  let html = '';
+
+  if (!ST.startDate) {
+    html = buildTimerCard(log) + `<div class="empty-state"><div class="big-emoji">🌱</div><h2>시작 준비</h2>
+      <p>설정에서 프로그램 시작 날짜를 지정해주세요</p><br>
+      <button class="btn btn-primary" onclick="switchView('settings',document.querySelectorAll('.nav-btn')[4])">시작일 설정하기 →</button></div>`;
+  } else if (!dayNum) {
+    const start = strToDate(ST.startDate), todayDate = strToDate(t);
+    if (todayDate < start) {
+      const days = Math.floor((start-todayDate)/86400000);
+      html = buildTimerCard(log) + `<div class="empty-state"><div class="big-emoji">⏳</div><h2>D-${days} 시작 예정</h2>
+        <p>${ST.startDate} 부터 시작됩니다<br>지금부터 준비하세요!</p></div>`;
+    } else {
+      const done = Object.values(ST.logs).filter(isComplete).length;
+      html = buildTimerCard(log) + `<div class="empty-state"><div class="big-emoji">🎊</div><h2>28일 완주!</h2>
+        <p>수고하셨습니다! ${done}일 완료</p><br>
+        <button class="btn btn-primary" onclick="switchView('settings',document.querySelectorAll('.nav-btn')[4])">다시 시작하기 →</button></div>`;
+    }
+  } else {
+    const pct = Math.round((dayNum/28)*100);
+    const items = getCheckItems(dayNum, stage, log);
+    const checked = items.filter(i => log[i.key]).length;
+    document.getElementById('headerSub').textContent = `D+${dayNum} · ${stage.name}`;
+
+    const timerCard = buildTimerCard(log);
+
+    // Weight card
+    const wtCard = `
+      <div class="card">
+        <div class="card-title">⚖️ 오늘의 몸무게</div>
+        <div class="weight-row">
+          <span style="font-size:15px;font-weight:500">체중 기록</span>
+          <div class="weight-input-wrap">
+            <input type="number" class="weight-input" id="weightInput" step="0.1" min="30" max="200"
+              value="${log.weight||''}" placeholder="--"
+              onchange="saveWeight('${t}',this.value)" onblur="saveWeight('${t}',this.value)">
+            <span class="weight-unit">kg</span>
+          </div>
+        </div>
+      </div>`;
+
+    // Exercise card
+    const exercises = log.exercises || [];
+    const exCard = `
+      <div class="card">
+        <div class="card-title">🏃 오늘의 운동</div>
+        <div class="ex-list">
+          ${exercises.length===0?'<div style="color:var(--text-muted);font-size:13px;padding:8px 0">운동 기록 없음</div>':
+            exercises.map((ex,i) => `
+            <div class="ex-item">
+              <div class="ex-item-info">
+                <div class="ex-item-type">${ex.type}</div>
+                <div class="ex-item-detail">${ex.intensity} · ${ex.duration}분${ex.note?' · '+ex.note:''}</div>
+              </div>
+              <button class="ex-delete" onclick="deleteExercise('${t}',${i})">✕</button>
+            </div>`).join('')}
+        </div>
+        <button class="btn-add-ex" onclick="openExModal('${t}')">+ 운동 추가</button>
+      </div>`;
+
+    html = `
+      <div class="today-hero">
+        <div class="today-top">
+          <div>
+            <div class="today-label">${t} (${['일','월','화','수','목','금','토'][new Date().getDay()]})</div>
+            <div class="today-day-num">D+${dayNum}</div>
+          </div>
+          <div class="stage-badge">${stage.num}단계</div>
+        </div>
+        <div class="stage-name-big">${stage.name}</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div class="prog-text">${dayNum} / 28일 · ${pct}% 완료</div>
+      </div>
+      ${timerCard}
+      ${wtCard}
+      <div class="card">
+        <div class="card-title">오늘의 체크리스트 ${checked}/${items.length}</div>
+        ${items.map(item => checkHTML(t, item, log[item.key])).join('')}
+      </div>
+      <div class="card">
+        <div class="card-title">24시간 단식 ${log.fast24h?'✅':''}</div>
+        ${checkHTML(t, {key:'fast24h', label:'🚫 오늘은 24시간 단식일', sub:`이번 주 목표: 주 ${stage.weekly24h}회`}, log.fast24h)}
+      </div>
+      ${exCard}
+      <div class="card">
+        <div class="card-title">오늘의 메모</div>
+        <textarea placeholder="오늘 느낀 점, 특이사항..." onchange="saveNote('${t}',this.value)">${log.note||''}</textarea>
+      </div>`;
+  }
+  document.getElementById('home-content').innerHTML = html;
+  startTimer();
+}
+
+function checkHTML(ds, item, checked) {
+  return `<div class="check-item ${checked?'checked':''}" onclick="toggleCheck('${ds}','${item.key}')">
+    <div class="check-box">${checked?'✓':''}</div>
+    <div><div class="check-label">${item.label}</div>${item.sub?`<div class="check-sub">${item.sub}</div>`:''}</div>
+  </div>`;
+}
+
+function getCheckItems(dayNum, stage, log) {
+  const items = [
+    {key:'water', label:'💧 물 2리터 이상', sub:'하루 종일 조금씩'},
+    {key:'sleep', label:'😴 수면 6시간 이상', sub:'자정~오전 4시 필수 수면'},
+    {key:'fast', label:'⏰ 간헐적 단식 유지', sub:'14시간 단식 / 10시간 식사'},
+  ];
+  stage.meals.forEach((m,i) => items.push({key:`meal${i}`, label:`🥤 ${m}`, sub:''}));
+  items.push({key:'suppl', label:'💊 영양제 섭취', sub:''});
+  items.push({key:'exercise', label:'🏃 운동 완료', sub:stage.exercise});
+  return items;
+}
+
+function toggleCheck(ds, key) {
+  if (!ST.logs[ds]) ST.logs[ds] = {};
+  ST.logs[ds][key] = !ST.logs[ds][key];
+  save();
+  const active = document.querySelector('.view.active').id.replace('v-','');
+  if (active==='home') renderHome();
+  else if (document.getElementById('dayModal').classList.contains('open')) refreshModal(ds);
+}
+
+function saveNote(ds, note) { if (!ST.logs[ds]) ST.logs[ds]={}; ST.logs[ds].note=note; save(); }
+function saveWeight(ds, val) {
+  if (!ST.logs[ds]) ST.logs[ds]={};
+  const w = parseFloat(val);
+  if (!isNaN(w) && w>0) ST.logs[ds].weight = w;
+  else delete ST.logs[ds].weight;
+  save();
+}
+
+// ═══════════════════════════════════════════════
+// EXERCISE
+// ═══════════════════════════════════════════════
+let exModalDs = null;
+let selectedExType = null;
+let selectedIntensity = null;
+
+function openExModal(ds) {
+  exModalDs = ds;
+  selectedExType = null;
+  selectedIntensity = null;
+  document.querySelectorAll('.ex-type-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('exDuration').value = '';
+  document.getElementById('exNote').value = '';
+  document.getElementById('exModal').classList.add('open');
+}
+
+function closeExModal() { document.getElementById('exModal').classList.remove('open'); }
+function handleExModalBg(e) { if (e.target===document.getElementById('exModal')) closeExModal(); }
+
+function selectExType(btn, type) {
+  document.querySelectorAll('.ex-type-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedExType = type;
+}
+
+function selectIntensity(btn, val) {
+  document.querySelectorAll('.intensity-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedIntensity = val;
+}
+
+function saveExercise() {
+  if (!selectedExType) { alert('운동 종류를 선택해주세요'); return; }
+  if (!selectedIntensity) { alert('강도를 선택해주세요'); return; }
+  const dur = parseInt(document.getElementById('exDuration').value);
+  if (!dur || dur<1) { alert('운동 시간을 입력해주세요'); return; }
+  const note = document.getElementById('exNote').value.trim();
+  if (!ST.logs[exModalDs]) ST.logs[exModalDs]={};
+  if (!ST.logs[exModalDs].exercises) ST.logs[exModalDs].exercises=[];
+  ST.logs[exModalDs].exercises.push({ type:selectedExType, intensity:selectedIntensity, duration:dur, note });
+  // Also check exercise item
+  ST.logs[exModalDs].exercise = true;
+  save();
+  closeExModal();
+  const active = document.querySelector('.view.active').id.replace('v-','');
+  if (active==='home') renderHome();
+  else if (document.getElementById('dayModal').classList.contains('open')) refreshModal(exModalDs);
+}
+
+function deleteExercise(ds, idx) {
+  if (!ST.logs[ds]?.exercises) return;
+  ST.logs[ds].exercises.splice(idx,1);
+  if (ST.logs[ds].exercises.length===0) ST.logs[ds].exercise = false;
+  save();
+  const active = document.querySelector('.view.active').id.replace('v-','');
+  if (active==='home') renderHome();
+  else if (document.getElementById('dayModal').classList.contains('open')) refreshModal(ds);
+}
+
+// ═══════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════
+function renderCalendar() {
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('calLabel').textContent = `${calYear}년 ${months[calMonth]}`;
+  const firstDow = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const t = todayStr();
+  let html = '';
+  for (let i=0; i<firstDow; i++) html += `<div class="cal-cell empty"></div>`;
+  for (let d=1; d<=daysInMonth; d++) {
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dayNum = getDietDay(ds);
+    const stage = dayNum ? getStageByDay(dayNum) : null;
+    const log = ST.logs[ds] || {};
+    const isPast = ds < t;
+    let cls = 'cal-cell';
+    if (stage) cls += ' '+stage.cls;
+    if (ds===t) cls += ' today';
+    let dots = '';
+    if (dayNum) {
+      if (isPast) {
+        if (log.cheatDay) dots += `<div class="dot dot-cheat"></div>`;
+        else dots += isComplete(log) ? `<div class="dot dot-ok"></div>` : `<div class="dot dot-fail"></div>`;
+      }
+      if (log.fast24h) dots += `<div class="dot dot-fast"></div>`;
+    }
+    const wt = log.weight ? `<span class="cal-cell-wt">${log.weight}kg</span>` : '';
+    html += `<div class="${cls}" onclick="openModal('${ds}')">
+      <span>${d}</span>
+      ${dayNum?`<span class="cal-cell-dnum">D${dayNum}</span>`:''}
+      ${wt}
+      ${dots?`<div class="cal-dots">${dots}</div>`:''}
+    </div>`;
+  }
+  document.getElementById('calDays').innerHTML = html;
+}
+
+document.getElementById('prevMonth').onclick = () => { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); };
+document.getElementById('nextMonth').onclick = () => { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); };
+
+// ═══════════════════════════════════════════════
+// DAY MODAL
+// ═══════════════════════════════════════════════
+let modalDs = null;
+
+function openModal(ds) { modalDs=ds; refreshModal(ds); document.getElementById('dayModal').classList.add('open'); }
+function closeModal() {
+  document.getElementById('dayModal').classList.remove('open');
+  modalDs=null;
+  const active = document.querySelector('.view.active').id.replace('v-','');
+  if (active==='calendar') renderCalendar();
+  else if (active==='home') renderHome();
+}
+function handleModalBg(e) { if(e.target===document.getElementById('dayModal')) closeModal(); }
+
+function refreshModal(ds) {
+  const dayNum = getDietDay(ds);
+  const stage = dayNum ? getStageByDay(dayNum) : null;
+  const log = ST.logs[ds] || {};
+  const exercises = log.exercises || [];
+  let html = `<div class="modal-hd">
+    <div class="modal-title">${ds}${dayNum?` · D+${dayNum}`:''}</div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+  </div>`;
+  if (!dayNum) {
+    html += `<p style="color:var(--text-muted);text-align:center;padding:30px 0">다이어트 기간 외 날짜</p>`;
+  } else {
+    const bgMap = {s1:'var(--s1bg)',s2:'var(--s2bg)',s3:'var(--s3bg)',s4:'var(--s4bg)',s5:'var(--s5bg)'};
+    const items = getCheckItems(dayNum, stage, log);
+    html += `
+      <div style="background:${bgMap[stage.cls]};border-radius:12px;padding:14px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:${stage.color};text-transform:uppercase;letter-spacing:.8px">${stage.num}단계</div>
+        <div style="font-size:16px;font-weight:800;margin:3px 0 6px">${stage.name}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${stage.tips}</div>
+      </div>
+      ${log.fast24h?'<div class="fast24-bar">🚫 24시간 단식일로 기록됨</div>':''}
+
+      <div class="section-title">식사 시간</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div class="timer-info-box"><div class="timer-info-label">첫 식사</div><div class="timer-info-val">${log.firstMeal||'--:--'}</div></div>
+        <div class="timer-info-box"><div class="timer-info-label">마지막 식사</div><div class="timer-info-val">${log.lastMeal||'--:--'}</div></div>
+      </div>
+
+      <div class="section-title">체중</div>
+      <div class="weight-row" style="margin-bottom:12px">
+        <span style="font-size:14px">체중 기록</span>
+        <div class="weight-input-wrap">
+          <input type="number" class="weight-input" step="0.1" min="30" max="200"
+            value="${log.weight||''}" placeholder="--"
+            onchange="saveWeight('${ds}',this.value)">
+          <span class="weight-unit">kg</span>
+        </div>
+      </div>
+
+      <div class="section-title">체크리스트</div>
+      ${items.map(item => checkHTML(ds, item, log[item.key])).join('')}
+
+      <div class="section-title" style="margin-top:12px">24시간 단식</div>
+      ${checkHTML(ds, {key:'fast24h', label:'🚫 오늘은 24시간 단식일', sub:`목표: 주 ${stage.weekly24h}회`}, log.fast24h)}
+
+      <div class="section-title" style="margin-top:12px">예외일</div>
+      ${checkHTML(ds, {key:'cheatDay', label:'🍺 예외일 (회식/치팅/불가피한 날)', sub:'미완료로 카운트되지 않아요'}, log.cheatDay)}
+      ${log.cheatDay ? '<div class="fast24-bar" style="background:#FEF3C7;color:#92400E">🍺 예외일로 기록됨 — 내일 다시 시작해요!</div>' : ''}
+
+      <div class="section-title" style="margin-top:12px">운동 기록</div>
+      <div class="ex-list">
+        ${exercises.length===0?'<div style="color:var(--text-muted);font-size:13px;padding:6px 0">운동 기록 없음</div>':
+          exercises.map((ex,i) => `
+          <div class="ex-item">
+            <div class="ex-item-info">
+              <div class="ex-item-type">${ex.type}</div>
+              <div class="ex-item-detail">${ex.intensity} · ${ex.duration}분${ex.note?' · '+ex.note:''}</div>
+            </div>
+            <button class="ex-delete" onclick="deleteExercise('${ds}',${i})">✕</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn-add-ex" onclick="openExModal('${ds}')">+ 운동 추가</button>
+
+      <div class="section-title" style="margin-top:12px">메모</div>
+      <textarea placeholder="메모..." onchange="saveNote('${ds}',this.value)">${log.note||''}</textarea>`;
+  }
+  document.getElementById('modalInner').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// DIET VIEW
+// ═══════════════════════════════════════════════
+function renderDiet() {
+  const t = todayStr();
+  const dayNum = getDietDay(t);
+  const curStageNum = dayNum ? (getStageByDay(dayNum)?.num||0) : 0;
+  let html = `<div class="card"><div class="card-title">스위치온 다이어트 5단계</div>
+    <div class="info-row"><span class="chip">📅 총 28일</span><span class="chip">💧 물 2L/일</span><span class="chip">⏰ 14:10 단식</span><span class="chip">💊 영양제</span></div></div>`;
+  STAGES.forEach(s => {
+    const isCur = s.num===curStageNum;
+    const bgMap = {s1:'var(--s1bg)',s2:'var(--s2bg)',s3:'var(--s3bg)',s4:'var(--s4bg)',s5:'var(--s5bg)'};
+    html += `<div class="stage-card-big" style="border:2px solid ${isCur?s.color:'transparent'}">
+      <div class="sc-header"><div class="sc-dot" style="background:${s.color}"></div>
+        <div class="sc-title">${s.num}단계 — ${s.name}</div>${isCur?'<div class="sc-current">현재</div>':''}
+      </div>
+      <div class="sc-days">${s.dayRange}</div>
+      <div class="card-title">식사</div>
+      <ul class="meal-list">${s.meals.map(m=>`<li>${m}</li>`).join('')}
+        ${s.coffee?'<li>☕ 커피 허용 (설탕·크림 없이)</li>':''}
+        ${s.fruit?'<li>🍎 과일 허용 (소량)</li>':''}
+      </ul>
+      <div class="info-row" style="margin-top:10px">
+        <span class="chip">🏃 ${s.exercise}</span>
+        ${s.weekly24h>0?`<span class="chip chip-red">🚫 주 ${s.weekly24h}회 24h 단식</span>`:''}
+      </div>
+      <div class="tip-box">💡 ${s.tips}</div>
+    </div>`;
+  });
+  document.getElementById('diet-content').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// LOG VIEW (weight chart + exercise history + stats)
+// ═══════════════════════════════════════════════
+function renderLog() {
+  if (!ST.startDate) {
+    document.getElementById('log-content').innerHTML = `<div class="empty-state"><div class="big-emoji">💪</div><h2>기록 없음</h2><p>시작일을 설정하면 기록이 표시됩니다</p></div>`;
+    return;
+  }
+
+  const t = todayStr();
+  const dayNum = Math.min(getDietDay(t)||0, 28);
+  const pct = Math.round((dayNum/28)*100);
+
+  // Collect data
+  let completedDays=0, failedDays=0, cheatCount=0, wCount=0, sCount=0, fCount=0, eCount=0, f24Count=0, loggedDays=0;
+  const weightData = []; // [{day, weight, ds}]
+  const exerciseData = []; // [{ds, dayNum, exercises}]
+
+  for (let i=1; i<=28; i++) {
+    const d = new Date(strToDate(ST.startDate));
+    d.setDate(d.getDate()+i-1);
+    const ds = dateStr(d);
+    if (ds > t) break;
+    const log = ST.logs[ds] || {};
+    loggedDays++;
+    if (log.cheatDay) cheatCount++;
+    if (isComplete(log)) completedDays++; else if (!log.cheatDay) failedDays++;
+    if (log.water) wCount++;
+    if (log.sleep) sCount++;
+    if (log.fast) fCount++;
+    if (log.exercise) eCount++;
+    if (log.fast24h) f24Count++;
+    if (log.weight) weightData.push({day:i, weight:log.weight, ds});
+    if (log.exercises?.length) exerciseData.push({ds, dayNum:i, exercises:log.exercises});
+  }
+
+  // Weight Chart (SVG)
+  let wtChart = '';
+  if (weightData.length >= 2) {
+    const wts = weightData.map(d=>d.weight);
+    const minW = Math.min(...wts)-1, maxW = Math.max(...wts)+1;
+    const W=320, H=120, padL=40, padR=10, padT=10, padB=25;
+    const xScale = day => padL + (day-1)/(27) * (W-padL-padR);
+    const yScale = w => padT + (maxW-w)/(maxW-minW) * (H-padT-padB);
+    const pts = weightData.map(d=>`${xScale(d.day).toFixed(1)},${yScale(d.weight).toFixed(1)}`).join(' ');
+    const circles = weightData.map(d=>`<circle cx="${xScale(d.day).toFixed(1)}" cy="${yScale(d.weight).toFixed(1)}" r="4" fill="var(--primary)"/>`).join('');
+    const labels = weightData.filter((_,i)=>i===0||i===weightData.length-1).map(d=>`<text x="${xScale(d.day).toFixed(1)}" y="${(yScale(d.weight)-8).toFixed(1)}" text-anchor="middle" font-size="10" fill="var(--text-muted)">${d.weight}kg</text>`).join('');
+    const yLabels = [minW+0.5, (minW+maxW)/2, maxW-0.5].map(w=>`<text x="${padL-4}" y="${(yScale(w)+4).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--text-muted)">${w.toFixed(1)}</text>`).join('');
+    wtChart = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">
+      <polyline points="${pts}" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linejoin="round"/>
+      <polyline points="${padL},${yScale(wts[0]).toFixed(1)} ${pts} ${xScale(weightData[weightData.length-1].day).toFixed(1)},${H-padB} ${padL},${H-padB}" fill="rgba(79,70,229,0.08)" stroke="none"/>
+      ${circles}${labels}${yLabels}
+      <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="var(--border)" stroke-width="1"/>
+      <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="var(--border)" stroke-width="1"/>
+    </svg>`;
+    const first=weightData[0].weight, last=weightData[weightData.length-1].weight, diff=last-first;
+    wtChart += `<div class="wt-summary">
+      <div class="wt-sum-item"><div class="wt-sum-val">${first}kg</div><div class="wt-sum-lbl">시작 체중</div></div>
+      <div class="wt-sum-item"><div class="wt-sum-val" style="color:${diff<=0?'var(--success)':'var(--danger)'}">${diff>0?'+':''}${diff.toFixed(1)}kg</div><div class="wt-sum-lbl">변화량</div></div>
+      <div class="wt-sum-item"><div class="wt-sum-val">${last}kg</div><div class="wt-sum-lbl">현재 체중</div></div>
+    </div>`;
+  } else if (weightData.length===1) {
+    wtChart = `<div class="wt-no-data">📊 체중 기록이 2일 이상 있으면 그래프가 표시됩니다<br><strong>${weightData[0].weight}kg</strong> (${weightData[0].ds})</div>`;
+  } else {
+    wtChart = `<div class="wt-no-data">📊 체중 기록이 없습니다<br>홈 또는 달력 상세에서 체중을 기록해보세요</div>`;
+  }
+
+  // Exercise list
+  const allExercises = exerciseData.flatMap(d => d.exercises.map(ex=>({...ex, ds:d.ds, dayNum:d.dayNum}))).reverse().slice(0,20);
+  const badgeClass = {'고강도':'badge-high','중강도':'badge-mid','저강도':'badge-low'};
+  const exListHTML = allExercises.length===0
+    ? '<div style="color:var(--text-muted);font-size:13px;padding:12px 0;text-align:center">운동 기록이 없습니다</div>'
+    : allExercises.map(ex=>`
+      <div class="ex-log-item">
+        <div class="ex-log-date">D+${ex.dayNum}</div>
+        <div><div class="ex-log-type">${ex.type}</div><div class="ex-log-detail">${ex.duration}분${ex.note?' · '+ex.note:''}</div></div>
+        <div class="ex-log-badge ${badgeClass[ex.intensity]||''}">${ex.intensity}</div>
+      </div>`).join('');
+
+  // Stats bars
+  const barItems = [
+    {label:'💧 물 2L', count:wCount, color:'#3B82F6'},
+    {label:'😴 수면', count:sCount, color:'#8B5CF6'},
+    {label:'⏰ 단식', count:fCount, color:'#10B981'},
+    {label:'🏃 운동', count:eCount, color:'#F59E0B'},
+    {label:'🚫 24h단식', count:f24Count, color:'#EF4444'},
+  ];
+
+  const stageStats = STAGES.map(s => {
+    let done=0;
+    s.days.forEach(d => {
+      const base = new Date(strToDate(ST.startDate));
+      base.setDate(base.getDate()+d-1);
+      const ds = dateStr(base);
+      if (ds<t && isComplete(ST.logs[ds]||{})) done++;
+    });
+    return {s, done};
+  });
+
+  const rate = loggedDays>0 ? Math.round((completedDays/loggedDays)*100) : 0;
+
+  document.getElementById('log-content').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-num" style="color:var(--primary)">${dayNum}</div><div class="stat-lbl">진행일 / 28일</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--warning)">${pct}%</div><div class="stat-lbl">전체 진행률</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--success)">${completedDays}</div><div class="stat-lbl">완료일</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--danger)">${failedDays}</div><div class="stat-lbl">미완료일</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:#F59E0B">${cheatCount}</div><div class="stat-lbl">예외일 🍺</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚖️ 체중 변화</div>
+      <div class="wt-chart-wrap">${wtChart}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏃 운동 기록</div>
+      ${exListHTML}
+    </div>
+
+    <div class="card">
+      <div class="card-title">항목별 달성 현황 (${rate}%)</div>
+      ${barItems.map(it => {
+        const r = loggedDays>0 ? Math.round((it.count/loggedDays)*100) : 0;
+        return `<div class="bar-item">
+          <div class="bar-top"><span>${it.label}</span><span style="color:var(--text-muted)">${it.count}/${loggedDays}일 (${r}%)</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:${r}%;background:${it.color}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-title">단계별 완료 현황</div>
+      ${stageStats.map(({s,done}) => {
+        const r = Math.round((done/s.days.length)*100);
+        return `<div class="bar-item">
+          <div class="bar-top">
+            <span style="display:flex;align-items:center;gap:6px">
+              <span style="width:10px;height:10px;border-radius:3px;background:${s.color};display:inline-block"></span>
+              ${s.num}단계 ${s.name}
+            </span>
+            <span style="color:var(--text-muted)">${done}/${s.days.length}</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" style="width:${r}%;background:${s.color}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════
+function saveStartDate() {
+  const v = document.getElementById('startDateInput').value;
+  if (!v) return alert('날짜를 선택해주세요');
+  if (ST.startDate && ST.startDate!==v) {
+    if (!confirm(`시작일을 ${ST.startDate} → ${v} 로 변경하시겠습니까?`)) return;
+  }
+  ST.startDate=v; save();
+  calYear=strToDate(v).getFullYear(); calMonth=strToDate(v).getMonth();
+  alert(`✅ ${v} 로 저장되었습니다!`);
+  renderHome();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(ST,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`switch-on-${todayStr()}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData() { document.getElementById('importFileInput').click(); }
+
+function handleImport(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.startDate && !data.logs) throw new Error();
+      if (confirm('데이터를 가져오시겠습니까? 현재 데이터는 덮어씌워집니다.')) {
+        ST=data; if(!ST.notif) ST.notif={fastEnd:true,eatEnd:true}; save();
+        document.getElementById('startDateInput').value = ST.startDate||todayStr();
+        alert('✅ 데이터를 가져왔습니다!');
+      }
+    } catch { alert('올바른 파일 형식이 아닙니다.'); }
+  };
+  reader.readAsText(file); e.target.value='';
+}
+
+function resetData() {
+  if (!confirm('모든 데이터를 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
+  if (!confirm('정말로 초기화하시겠습니까?')) return;
+  const tgToken = ST.notif.tgToken;
+  const tgChatId = ST.notif.tgChatId;
+  localStorage.removeItem('switchOnV2');
+  ST = { startDate:'', logs:{}, notif: { ..._notifDef, tgToken, tgChatId } };
+  save();
+  document.getElementById('startDateInput').value=todayStr();
+  alert('초기화되었습니다.'); renderHome();
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+document.getElementById('startDateInput').value = ST.startDate || todayStr();
+renderHome();
+scheduleAllNotifs(); // 앱 시작 시 오늘 식사 데이터로 알림 재스케줄
+// Request notif permission silently on load if not asked
+if ('Notification' in window && Notification.permission === 'default') {
+  // Don't auto-request, let user do it in settings
+}
+</script>
+</body>
+</html>
