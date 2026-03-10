@@ -981,6 +981,15 @@ function addMealRecord() {
   // 첫 식사 / 마지막 식사 자동 갱신
   ST.logs[t].firstMeal = ST.logs[t].mealLog[0].time;
   ST.logs[t].lastMeal = ST.logs[t].mealLog[ST.logs[t].mealLog.length - 1].time;
+  // 식사 기록 시 해당 meal 체크박스 자동 체크
+  const dayNum = getDietDay(t);
+  const stage = dayNum ? getStageByDay(dayNum) : null;
+  if (stage) {
+    const mealIdx = ST.logs[t].mealLog.length - 1;
+    if (mealIdx < stage.meals.length) {
+      ST.logs[t][`meal${mealIdx}`] = true;
+    }
+  }
   save();
   scheduleAllNotifs();
   renderHome();
@@ -1242,7 +1251,7 @@ function getCheckItems(dayNum, stage, log) {
   ];
   stage.meals.forEach((m,i) => items.push({key:`meal${i}`, label:`🥤 ${m}`, sub:''}));
   items.push({key:'suppl', label:'💊 영양제 섭취', sub:''});
-  items.push({key:'exercise', label:'🏃 운동 완료', sub:stage.exercise});
+  // 운동은 옵션 — 별도 운동 카드에서 기록, 완료 기준에 미포함
   return items;
 }
 
