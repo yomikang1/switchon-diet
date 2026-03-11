@@ -1226,6 +1226,11 @@ function renderHome() {
         <div class="card-title">24시간 단식 ${log.fast24h?'✅':''}</div>
         ${checkHTML(t, {key:'fast24h', label:'🚫 오늘은 24시간 단식일', sub:`이번 주 목표: 주 ${stage.weekly24h}회`}, log.fast24h)}
       </div>
+      <div class="card">
+        <div class="card-title">예외일 ${log.cheatDay?'🍺':''}</div>
+        ${checkHTML(t, {key:'cheatDay', label:'🍺 예외일 (회식/치팅/불가피한 날)', sub:'미완료로 카운트되지 않아요'}, log.cheatDay)}
+        ${log.cheatDay ? '<div class="fast24-bar" style="background:#FEF3C7;color:#92400E;margin-top:8px">🍺 예외일로 기록됨 — 내일 다시 시작해요!</div>' : ''}
+      </div>
       ${exCard}
       <div class="card">
         <div class="card-title">오늘의 메모</div>
